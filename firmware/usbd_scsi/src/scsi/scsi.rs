@@ -219,10 +219,14 @@ impl<B: UsbBus, BD: BlockDevice> Scsi<'_, B, BD> {
                     new_command, self.lba, self.lba_end, self.lba == self.lba_end);
 
                 let len = match self.inner.transfer_state() {
-                    TransferState::ReceivingDataFromHost { done: true, full: false, bytes_available: b } => b,
-                    // TODO: Does this ever happen?
-                    _ => BD::BLOCK_BYTES,
+                    TransferState::ReceivingDataFromHost { bytes_available: b, .. } => b,
+                    TransferState::NotTransferring { bytes_remaining: 0, empty: true } => return Ok(Done),
+                    e => unreachable!("{:?}", e),
                 };
+
+                if len != BD::BLOCK_BYTES {
+                    return Ok(Ongoing);
+                }
 
                 let buf = self.inner.take_buffered_data(len, false).expect("Buffer should have enough data");
                 self.block_device.write_block(self.lba, buf)?;

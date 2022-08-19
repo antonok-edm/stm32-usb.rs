@@ -124,7 +124,7 @@ impl From<Read12Command> for ReadXCommand {
 
 #[test]
 fn test_read10_parse() {
-    let data = [0, 0, 0, 0x1E, 0x80, 0, 0, 0x8, 0, 0, 0, 0, 0, 0, 0];
+    let data = [0, 0, 0, 0, 0x1E, 0x80, 0, 0x8, 0, 0, 0, 0, 0, 0, 0];
     let cmd = Read10Command::parse(&data).unwrap();
     assert_eq!(cmd.lba, 0x1E80);
 }

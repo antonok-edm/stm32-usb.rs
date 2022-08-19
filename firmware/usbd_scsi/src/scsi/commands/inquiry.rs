@@ -51,25 +51,28 @@ impl ParsePackedStruct for InquiryCommand {}
 
 #[test]
 fn test_inquiry() {
-    let mut bytes = [0; 5];
+    let mut bytes = [0; 6];
     let mut cmd = InquiryCommand::default();
     assert_eq!(cmd, InquiryCommand::unpack(&bytes).unwrap());
 
-    bytes[0] |= 0b00000001;
+    bytes[1] |= 0b00000001;
     cmd.enable_vital_product_data = true;
-    assert_eq!(cmd, InquiryCommand::unpack(&bytes).unwrap());    
+    assert_eq!(cmd, InquiryCommand::unpack(&bytes).unwrap());
 
-    bytes[1] = 0x99;
+    bytes[2] = 0x99;
     cmd.page_code = 0x99;
     assert_eq!(cmd, InquiryCommand::unpack(&bytes).unwrap());    
 
     let al = 9999;
-    bytes[2] = ((al >> 8) & 0xFF) as u8;
-    bytes[3] = ((al >> 0) & 0xFF) as u8;
+    bytes[3] = ((al >> 8) & 0xFF) as u8;
+    bytes[4] = ((al >> 0) & 0xFF) as u8;
     cmd.allocation_length = al;
     assert_eq!(cmd, InquiryCommand::unpack(&bytes).unwrap());    
 
-    bytes[4] = 0x31;
-    cmd.control = 0x31;
+    bytes[5] = 0xc4;
+    cmd.control = Control {
+        vendor_specific: 3,
+        normal_aca: true,
+    };
     assert_eq!(cmd, InquiryCommand::unpack(&bytes).unwrap());    
 }

@@ -174,17 +174,13 @@ impl<B: UsbBus, BD: BlockDevice> Scsi<'_, B, BD> {
             // Check the readonly and cache (potentially other info) about the device
             Command::ModeSense(ModeSenseXCommand { command_length: CommandLength::C6, page_control: PageControl::CurrentValues })  => {
                 let mut header = ModeParameterHeader6::default();
-                header.increase_length_for_page(PageCode::CachingModePage);
+                header.device_specific_parameter.write_protect = false;
                 
-                // Default is both caches disabled
-                let cache_page = CachingModePage::default();
-
                 let buf = self.inner.take_buffer_space(
-                    ModeParameterHeader6::BYTES + CachingModePage::BYTES
-                )?;   
+                    ModeParameterHeader6::BYTES
+                )?;
 
                 header.pack(&mut buf[..ModeParameterHeader6::BYTES])?;
-                cache_page.pack(&mut buf[ModeParameterHeader6::BYTES..])?;
                 Done
             },
 

@@ -33,3 +33,6 @@ pub use spc_version::*;
 
 mod response_data_format;
 pub use response_data_format::*;
+
+mod capacity_descriptor_code;
+pub use capacity_descriptor_code::*;

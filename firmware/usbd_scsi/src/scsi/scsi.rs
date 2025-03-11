@@ -159,6 +159,18 @@ impl<B: UsbBus, BD: BlockDevice> Scsi<'_, B, BD> {
                 Done
             },
 
+            Command::ReadFormatCapacities(fc) => {
+                let header = CapacityListHeader::default();
+                let max_capacity_descriptor = CurrentMaximumCapacityDescriptor::with_number_of_blocks(self.block_device.max_lba());
+
+                let buf = self.inner.take_buffer_space(
+                    CapacityListHeader::BYTES + CurrentMaximumCapacityDescriptor::BYTES
+                )?;
+                header.pack(&mut buf[..CapacityListHeader::BYTES])?;
+                max_capacity_descriptor.pack(&mut buf[CapacityListHeader::BYTES..])?;
+                Done
+            },
+
             // Check the readonly and cache (potentially other info) about the device
             Command::ModeSense(ModeSenseXCommand { command_length: CommandLength::C6, page_control: PageControl::CurrentValues })  => {
                 let mut header = ModeParameterHeader6::default();

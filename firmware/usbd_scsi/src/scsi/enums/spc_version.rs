@@ -4,6 +4,8 @@ use packing::Packed;
 pub enum SpcVersion {
     //The device server does not claim conformance to any standard.
     None = 0x00,
+    //Compliance to ANSI X3.131:1994
+    X3_131_1994 = 0x02,
     //The device server complies to ANSI INCITS 351-2001 (SPC-2).
     Spc2 = 0x04,
     //The device server complies to ANSI INCITS 408-2005 (SPC-3).
@@ -13,6 +15,6 @@ pub enum SpcVersion {
 }
 impl Default for SpcVersion {
     fn default() -> Self {
-        SpcVersion::Spc4
+        SpcVersion::X3_131_1994
     }
 }

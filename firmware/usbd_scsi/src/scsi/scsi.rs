@@ -191,10 +191,19 @@ impl<B: UsbBus, BD: BlockDevice> Scsi<'_, B, BD> {
             // Request sense is how more info about the state of the device is returned
             // Returning CommandError will cause the host to perform a request sense
             // to get more details.
-            Command::RequestSense(_) => {
-                let buf = self.inner.take_buffer_space(RequestSenseResponse::BYTES)?;
-                self.request_sense_response.pack(buf)?;
-                Done
+            Command::RequestSense(request) => {
+                match request.descriptor_format {
+                    true => {
+                        // Descriptor format sense data is unsupported
+                        return Err(Error::DescriptorFormatSenseDataNotSupported);
+                    }
+                    false => {
+                        assert!(request.allocation_length == 252);
+                        let buf = self.inner.take_buffer_space(RequestSenseResponse::BYTES)?;
+                        self.request_sense_response.pack(buf)?;
+                        Done
+                    }
+                }
             },
 
             // Read `transfer_length` blocks from `lba`
@@ -373,6 +382,11 @@ impl<B: UsbBus, BD: BlockDevice> Scsi<'_, B, BD> {
             Error::BulkOnlyTransportError(BulkOnlyTransportError::UsbError(_)) => (
                 SenseKey::HardwareError,
                 AdditionalSenseCode::NoAdditionalSenseInformation,
+            ),
+
+            Error::DescriptorFormatSenseDataNotSupported => (
+                SenseKey::IllegalRequest,
+                AdditionalSenseCode::InvalidFieldInCdb,
             ),
         };
 

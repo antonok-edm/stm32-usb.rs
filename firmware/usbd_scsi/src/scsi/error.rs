@@ -11,6 +11,7 @@ pub enum Error {
     PackingError(PackingError),
     BlockDeviceError(BlockDeviceError),
     BulkOnlyTransportError(BulkOnlyTransportError),
+    DescriptorFormatSenseDataNotSupported,
 }
 
 impl From<PackingError> for Error {

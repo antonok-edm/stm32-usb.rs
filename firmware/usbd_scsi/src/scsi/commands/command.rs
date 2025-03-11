@@ -56,6 +56,7 @@ impl Command {
             OpCode::StartStopUnit => Ok(Command::StartStopUnit(checked_extract(cbw)?)),
             OpCode::Verify10 => Ok(Command::Verify(checked_extract(cbw)?)),
             OpCode::SynchronizeCache10 => Ok(Command::SynchronizeCache(checked_extract(cbw)?)),
+            OpCode::AtaPassThrough16 => Ok(Command::None),
             _ => Err(Error::UnhandledOpCode),
         }
     }

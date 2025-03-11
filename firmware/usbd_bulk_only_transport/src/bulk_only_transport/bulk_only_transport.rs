@@ -456,7 +456,7 @@ impl<B: UsbBus> BulkOnlyTransport<'_, B> {
 
         // send_zlp or flush are called here because we may not get an interrupt in a timley manner
         // if we don't send immediately and
-        if needs_zlp {            
+        if false && needs_zlp {
             trace_bot_zlp!("ZLP> required");
             self.change_state(State::NeedZlp);
             self.send_zlp()?;

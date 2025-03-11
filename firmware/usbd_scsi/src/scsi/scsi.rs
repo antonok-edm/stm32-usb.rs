@@ -128,8 +128,9 @@ impl<B: UsbBus, BD: BlockDevice> Scsi<'_, B, BD> {
             // TODO: This always responds with "standard" response data but the req might be
             // for descriptor based response data.
             Command::Inquiry(_) => {
-                let buf = self.inner.take_buffer_space(InquiryResponse::BYTES)?;
-                self.inquiry_response.pack(buf)?;
+                let buf = self.inner.take_buffer_space(InquiryResponse::BYTES_TRUNCATED)?;
+                let mut inquiry_response = self.inquiry_response;
+                inquiry_response.pack_truncated(buf);
                 Done
             },
 

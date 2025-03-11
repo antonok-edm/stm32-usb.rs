@@ -169,6 +169,10 @@ fn set_ascii_str<T: AsRef<[u8]>>(target: &mut [u8], value: T) {
 }
 
 impl InquiryResponse {
+    /// Standard INQUIRY data contains at least 36 bytes. If there is additional data, its size
+    /// will be specified in the `additional_length` field.
+    pub const BYTES_TRUNCATED: usize = 36;
+
     pub fn set_vendor_identification<T: AsRef<[u8]>>(&mut self, vendor_id: T) {
         assert!(vendor_id.as_ref().len() <= self.vendor_identification.len());
         set_ascii_str(&mut self.vendor_identification, vendor_id);
@@ -180,6 +184,14 @@ impl InquiryResponse {
     pub fn set_product_revision_level<T: AsRef<[u8]>>(&mut self, product_revision_level: T) {
         assert!(product_revision_level.as_ref().len() <= self.product_revision_level.len());
         set_ascii_str(&mut self.product_revision_level, product_revision_level);
+    }
+    /// Packs a minimum-length `InquiryResponse`.
+    pub fn pack_truncated(&self, buf: &mut [u8]) {
+        let mut response = self.clone();
+        response.additional_length = Self::BYTES_TRUNCATED as u8 - 5;
+        let mut long_buf = [0u8; Self::BYTES];
+        response.pack(&mut long_buf);
+        buf.copy_from_slice(&long_buf[0..Self::BYTES_TRUNCATED]);
     }
 }
 
@@ -228,4 +240,15 @@ impl Default for InquiryResponse {
             compliant_standard_8: Default::default(),
         }
     }
+}
+
+#[cfg(test)]
+#[test]
+fn test_pack_truncated() {
+    let mut i = InquiryResponse::default();
+    i.set_product_revision_level("2.20");
+    let mut buf = [0u8; InquiryResponse::BYTES_TRUNCATED];
+    i.pack_truncated(&mut buf);
+    assert_eq!(buf[4], 31); // additional length
+    assert_eq!(&buf[InquiryResponse::BYTES_TRUNCATED-4..InquiryResponse::BYTES_TRUNCATED], "2.20".as_bytes());
 }

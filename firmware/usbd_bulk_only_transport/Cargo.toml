@@ -14,7 +14,7 @@ homepage = "https://github.com/cs2dsb/stm32-usb.rs/tree/master/firmware/usbd_bul
 
 [dependencies]
 usb-device            = "0.3.2"
-embedded-hal          = "0.2.3"
+embedded-hal          = "1.0.0"
 nb                    = "0.1.2"
 typenum               = "1.11.2"
 itm_logger            = { version = "0.1.0", default-features = false }

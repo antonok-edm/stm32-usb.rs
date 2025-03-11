@@ -33,7 +33,7 @@ impl ModeParameterHeader6 {
     /// Increase the relevant length fields to indicate the provided page follows this header
     /// can be called multiple times but be aware of the max length allocated by CBW
     pub fn increase_length_for_page(&mut self, page_code: PageCode) {
-        self.mode_data_length += match page_code {
+        self.block_descriptor_length += match page_code {
             PageCode::CachingModePage => CachingModePage::BYTES as u8,
         };
     }
@@ -73,7 +73,7 @@ impl ModeParameterHeader10 {
     /// can be called multiple times but be aware of the max length allocated by CBW
     #[allow(dead_code)]
     pub fn increase_length_for_page(&mut self, page_code: PageCode) {
-        self.mode_data_length += match page_code {
+        self.block_descriptor_length += match page_code {
             PageCode::CachingModePage => CachingModePage::BYTES as u16,
         };
     }
